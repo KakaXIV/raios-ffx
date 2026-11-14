@@ -229,12 +229,12 @@ Os números devem mudar quando você mexe a câmera no jogo. Para sair, **Ctrl +
 raios-ffx --atraso 50
 ```
 
-**Sensibilidade.** No começo do arquivo `raios-ffx` há dois valores que você pode mudar com qualquer editor de texto:
+**Sensibilidade.** No começo do arquivo `raios-ffx` há dois valores (os nomes estão em inglês, como o resto do código) que você pode mudar com qualquer editor de texto:
 
 | Valor | O que faz | Padrão |
 |---|---|---|
-| `SALTO` | Quanto o brilho precisa subir de repente para contar como raio. Aumente se ele estiver apertando sem raio; diminua se ele estiver perdendo raios. | `55` |
-| `ESPERA` | Segundos sem apertar de novo depois de um raio | `1.2` |
+| `FLASH_JUMP` | Quanto o brilho precisa subir de repente para contar como raio. Aumente se ele estiver apertando sem raio; diminua se ele estiver perdendo raios. | `55` |
+| `COOLDOWN` | Segundos sem apertar de novo depois de um raio | `1.2` |
 
 **Conexão.** Quanto mais estável a conexão entre o computador e o console, melhor. Cabo de rede no console ajuda bastante.
 
@@ -277,6 +277,9 @@ O programa não modifica o jogo, o console nem a rede. Ele só olha a tela e ape
 
 **Pode estragar alguma coisa no meu computador?**
 É bem improvável. O programa não apaga nem altera arquivos, não precisa de senha de administrador para rodar e o controle virtual some sozinho quando ele fecha. A única mudança no sistema é a permissão opcional do passo 3, a mesma que a Steam usa.
+
+**Em que idioma o programa fala?**
+Ele escolhe sozinho: se o seu sistema está em português, as mensagens aparecem em português; se não, em inglês. As opções também funcionam nas duas línguas (`--teste` ou `--test`, `--atraso` ou `--delay`). Só o texto muda: a detecção do raio é exatamente a mesma.
 
 **Por que o controle virtual se identifica como um adaptador USB genérico?**
 O Chiaki usa a biblioteca SDL para entender os controles. Ela já conhece esse adaptador e sabe qual botão é o X. Assim o programa funciona sem nenhuma configuração extra.

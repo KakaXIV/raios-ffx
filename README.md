@@ -160,18 +160,18 @@ What each line does, so you know:
 The program needs permission to create the invisible controller. Check it with:
 
 ```bash
-test -w /dev/uinput && echo "Tudo certo" || echo "Precisa liberar o uinput"
+test -w /dev/uinput && echo "All good" || echo "uinput needs to be allowed"
 ```
 
-- If it prints **"Tudo certo"** ("all good"): you're done, skip to [How to use it](#-how-to-use-it). (If you have **Steam** installed, you almost always have this permission already.)
-- If it prints **"Precisa liberar o uinput"** ("uinput needs to be allowed"): copy and paste the block below, press Enter, type your password and then **restart your computer**:
+- If it prints **"All good"**: you're done, skip to [How to use it](#-how-to-use-it). (If you have **Steam** installed, you almost always have this permission already.)
+- If it prints **"uinput needs to be allowed"**: copy and paste the block below, press Enter, type your password and then **restart your computer**:
 
 ```bash
 echo 'KERNEL=="uinput", SUBSYSTEM=="misc", TAG+="uaccess", OPTIONS+="static_node=uinput"' | sudo tee /etc/udev/rules.d/60-uinput-usuario.rules
 sudo udevadm control --reload && sudo udevadm trigger
 ```
 
-After restarting, run the check command again. It should print "Tudo certo".
+After restarting, run the check command again. It should print "All good".
 
 ## ▶️ How to use it
 
@@ -186,12 +186,12 @@ After restarting, run the check command again. It should print "Tudo certo".
 4. That's it, it's on. Every time lightning strikes, a new line shows up in the terminal:
 
    ```
-   Rodando! Pode andar pelas Planícies dos Trovões (de preferência em volta das crateras). Ctrl+C para parar.
-   ⚡ raio 1  (brilho 60 -> 203)
-   ⚡ raio 2  (brilho 59 -> 203)
+   Running! You can walk around the Thunder Plains (preferably around the craters). Ctrl+C to stop.
+   ⚡ bolt 1  (brightness 60 -> 203)
+   ⚡ bolt 2  (brightness 59 -> 203)
    ```
 
-   The messages are in Portuguese: *"Running! You can walk around the Thunder Plains (preferably around the craters). Ctrl+C to stop."*, and each `⚡ raio N` line means "lightning bolt number N" (`brilho` = brightness). Leave this terminal window open (it can sit behind Chiaki) while you play.
+   Leave this terminal window open (it can sit behind Chiaki) while you play.
 
 5. **You can walk around freely.** Your character jumps on their own when the lightning strikes, even while walking. You don't have to stand still. See [where it's best to be](#-where-to-stand-on-the-thunder-plains) below.
 6. For the **first few bolts**, watch the screen and make sure your character is **jumping to dodge**.
@@ -219,7 +219,7 @@ A few tips:
 **Test mode.** Shows the screen brightness in real time **without pressing anything**. Handy to check that the program can "see" Chiaki:
 
 ```bash
-raios-ffx --teste
+raios-ffx --test
 ```
 
 The numbers should change when you move the camera in the game. To quit, press **Ctrl + C**.
@@ -227,15 +227,15 @@ The numbers should change when you move the camera in the game. To quit, press *
 **Delay.** If your character gets hit because the press came too early (rare), you can wait a few milliseconds after the flash:
 
 ```bash
-raios-ffx --atraso 50
+raios-ffx --delay 50
 ```
 
 **Sensitivity.** At the top of the `raios-ffx` file there are two values you can change with any text editor:
 
 | Value | What it does | Default |
 |---|---|---|
-| `SALTO` | How much the brightness must jump suddenly to count as lightning. Raise it if it presses with no lightning; lower it if it misses bolts. | `55` |
-| `ESPERA` | Seconds to wait before pressing again after a bolt | `1.2` |
+| `FLASH_JUMP` | How much the brightness must jump suddenly to count as lightning. Raise it if it presses with no lightning; lower it if it misses bolts. | `55` |
+| `COOLDOWN` | Seconds to wait before pressing again after a bolt | `1.2` |
 
 **Connection.** The more stable the connection between your computer and the console, the better. A network cable on the console helps a lot.
 
@@ -248,13 +248,13 @@ The `~/.local/bin` folder only gets added to the terminal's "path" after you log
 ~/.local/bin/raios-ffx
 ```
 
-**"Não achei a janela do Chiaki, esperando..."** ("Couldn't find the Chiaki window, waiting...")
+**"Couldn't find the Chiaki window, waiting..."**
 The program looks for a window with "chiaki" in its title. Make sure Chiaki is open and not minimized. The `wmctrl -l` command lists the open windows: Chiaki's should be in it.
 
 **Lightning strikes, but nothing shows up in the terminal**
-Run `raios-ffx --teste`. If the brightness is always `0`, your session is probably Wayland. Log out and, on the login screen, choose the "Xorg" or "X11" session.
+Run `raios-ffx --test`. If the brightness is always `0`, your session is probably Wayland. Log out and, on the login screen, choose the "Xorg" or "X11" session.
 
-**"⚡ raio" shows up, but the character doesn't jump**
+**"⚡ bolt" shows up, but the character doesn't jump**
 - Click once on the Chiaki window and make sure your controller works in it.
 - Close and reopen Chiaki **with the program already running**, so it picks up the virtual controller.
 - Check the virtual controller permission ([step 3](#step-3-check-the-virtual-controller-permission)).
@@ -282,8 +282,8 @@ Very unlikely. The program doesn't delete or change any files, doesn't need admi
 **Why does the virtual controller identify itself as a generic USB adapter?**
 Chiaki uses the SDL library to understand controllers. SDL already knows this adapter and which button is ✕. That way the program works with no extra setup.
 
-**Why are the program's messages in Portuguese?**
-It was originally written in Portuguese. The messages are short and are translated in this guide; the commands themselves are the same in any language.
+**What language does the program speak?**
+It picks it automatically: if your system is set to Portuguese, the messages show up in Portuguese; otherwise, in English. The options work in both languages too (`--test` or `--teste`, `--delay` or `--atraso`). Only the text changes: the lightning detection is exactly the same.
 
 **Does it work with other games?**
 The idea (reacting to a flash on screen by pressing a button) can work for other reflex minigames. The code, however, was built and tuned for the Thunder Plains.

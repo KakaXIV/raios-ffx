@@ -1,29 +1,73 @@
 #!/usr/bin/python3 -I
-# raios-ffx — Final Fantasy X, Planícies dos Trovões (Thunder Plains)
-# Desvia dos raios sozinho jogando via Remote Play com o Chiaki (chiaki-ng) no Linux.
+# raios-ffx: Final Fantasy X, Thunder Plains lightning auto-dodge
+# Dodges the lightning bolts on its own while playing over Remote Play
+# with Chiaki (chiaki-ng) on Linux.
 #
-# Como funciona: olha a janela do Chiaki ~60 vezes por segundo; quando ela fica
-# clara de repente (o clarão do raio), aperta X num controle virtual extra.
-# O Chiaki junta os botões de todos os controles conectados e manda para o console.
-# Licença MIT.
-# Uso:  raios-ffx            -> modo automático (Ctrl+C para parar)
-#       raios-ffx --teste    -> só mostra o brilho da tela, não aperta nada
-#       raios-ffx --atraso 50 -> espera 50 ms depois do clarão antes de apertar
+# How it works: it looks at the Chiaki window ~60 times per second; when the
+# window suddenly gets bright (the lightning flash), it presses Cross on an
+# extra virtual controller. Chiaki merges the buttons of every connected
+# controller and sends them to the console.
+#
+# Messages are shown in Portuguese if the system language is Portuguese,
+# and in English otherwise.
+#
+# Usage:  raios-ffx                 -> automatic mode (Ctrl+C to stop)
+#         raios-ffx --test          -> only shows the screen brightness, presses nothing
+#         raios-ffx --delay 50      -> waits 50 ms after the flash before pressing
+#         (Portuguese aliases also work: --teste, --atraso)
+#
+# MIT License.
 import os, sys, time, struct, fcntl, subprocess
 from Xlib import display, X
 
-SALTO = 55          # quanto o brilho precisa subir de repente para contar como raio
-ESPERA = 1.2        # segundos sem apertar de novo depois de um raio
-BTN_X = 0x122       # botão X (Cross) no mapeamento que o Chiaki usa para este controle virtual
-TESTE = "--teste" in sys.argv
-ATRASO = 0.0
-if "--atraso" in sys.argv:
-    ATRASO = int(sys.argv[sys.argv.index("--atraso") + 1]) / 1000
+FLASH_JUMP = 55     # how much the brightness must jump suddenly to count as lightning
+COOLDOWN = 1.2      # seconds without pressing again after a bolt
+BTN_CROSS = 0x122   # Cross button in the mapping Chiaki uses for this virtual controller
 
-def janela_chiaki():
+# --- language -------------------------------------------------------------
+def _system_language():
+    for var in ("LC_ALL", "LC_MESSAGES", "LANG", "LANGUAGE"):
+        value = os.environ.get(var, "")
+        if value:
+            return value.lower()
+    return ""
+
+PT = _system_language().startswith("pt")
+
+MSG = {
+    "test_mode": ("Modo TESTE: só mostrando o brilho.",
+                  "TEST mode: only showing the brightness."),
+    "running":   ("Rodando! Pode andar pelas Planícies dos Trovões (de preferência em volta das crateras). Ctrl+C para parar.",
+                  "Running! You can walk around the Thunder Plains (preferably around the craters). Ctrl+C to stop."),
+    "no_window": ("Não achei a janela do Chiaki, esperando...",
+                  "Couldn't find the Chiaki window, waiting..."),
+    "bolt":      ("⚡ raio {n}  (brilho {a} -> {b})",
+                  "⚡ bolt {n}  (brightness {a} -> {b})"),
+    "level":     ("brilho {b}  normal {a}",
+                  "brightness {b}  normal {a}"),
+    "stopped":   ("\nParado. Raios detectados: {n}",
+                  "\nStopped. Bolts detected: {n}"),
+}
+
+def msg(key, **kw):
+    return MSG[key][0 if PT else 1].format(**kw)
+
+# --- options --------------------------------------------------------------
+def _option_value(names):
+    for name in names:
+        if name in sys.argv:
+            return int(sys.argv[sys.argv.index(name) + 1])
+    return None
+
+TEST = "--test" in sys.argv or "--teste" in sys.argv
+_delay_ms = _option_value(("--delay", "--atraso"))
+DELAY = _delay_ms / 1000 if _delay_ms else 0.0
+
+# --- program --------------------------------------------------------------
+def chiaki_window():
     out = subprocess.run(["wmctrl", "-lG"], capture_output=True, text=True).stdout
-    for linha in out.splitlines():
-        p = linha.split(None, 7)
+    for line in out.splitlines():
+        p = line.split(None, 7)
         if len(p) >= 8 and "chiaki" in p[7].lower():
             x, y, w, h = map(int, p[2:6])
             return x, y, w, h
@@ -32,7 +76,7 @@ def janela_chiaki():
 def ioc(d, t, nr, size):
     return (d << 30) | (size << 16) | (ord(t) << 8) | nr
 
-def cria_controle():
+def create_controller():
     u = os.open("/dev/uinput", os.O_WRONLY | os.O_NONBLOCK)
     fcntl.ioctl(u, ioc(1, "U", 100, 4), 1)   # EV_KEY
     fcntl.ioctl(u, ioc(1, "U", 100, 4), 3)   # EV_ABS
@@ -48,57 +92,56 @@ def cria_controle():
     data += struct.pack("64i", *([0] * 64)) + struct.pack("64i", *flat)
     os.write(u, data)
     fcntl.ioctl(u, ioc(0, "U", 1, 0))
-    for a in (0, 1, 2, 5):   # analógicos parados no meio
+    for a in (0, 1, 2, 5):   # analog sticks resting in the center
         os.write(u, struct.pack("llHHi", 0, 0, 3, a, 127))
     os.write(u, struct.pack("llHHi", 0, 0, 0, 0, 0))
     return u
 
-def aperta(u, botao):
+def press(u, button):
     ev = lambda t, c, v: struct.pack("llHHi", 0, 0, t, c, v)
-    os.write(u, ev(1, botao, 1) + ev(0, 0, 0))
+    os.write(u, ev(1, button, 1) + ev(0, 0, 0))
     time.sleep(0.08)
-    os.write(u, ev(1, botao, 0) + ev(0, 0, 0))
+    os.write(u, ev(1, button, 0) + ev(0, 0, 0))
 
-def brilho(raiz, x, y, w, h):
-    # pega o meio da janela (evita bordas e barra de título)
+def brightness(root, x, y, w, h):
+    # takes the middle of the window (skips the borders and the title bar)
     cx, cy, cw, ch = x + w // 8, y + h // 8, w * 3 // 4, h * 3 // 4
-    img = raiz.get_image(cx, cy, cw, ch, X.ZPixmap, 0xFFFFFFFF).data
-    amostra = img[1::4 * 37]          # canal verde, 1 a cada 37 pixels
-    return sum(amostra) / max(1, len(amostra))
+    img = root.get_image(cx, cy, cw, ch, X.ZPixmap, 0xFFFFFFFF).data
+    sample = img[1::4 * 37]           # green channel, 1 out of every 37 pixels
+    return sum(sample) / max(1, len(sample))
 
 def main():
     d = display.Display()
-    raiz = d.screen().root
-    u = None if TESTE else cria_controle()
+    root = d.screen().root
+    u = None if TEST else create_controller()
     if u:
-        time.sleep(1.5)   # dá tempo do Chiaki enxergar o controle novo
-    print("Modo TESTE: só mostrando o brilho." if TESTE else
-          "Rodando! Pode andar pelas Planícies dos Trovões (de preferência em volta das crateras). Ctrl+C para parar.", flush=True)
-    base = None; ultimo = 0; raios = 0; geo = None; geo_t = 0; t_log = time.time()
+        time.sleep(1.5)   # gives Chiaki time to notice the new controller
+    print(msg("test_mode") if TEST else msg("running"), flush=True)
+    base = None; last = 0; bolts = 0; geo = None; geo_t = 0; t_log = time.time()
     try:
         while True:
-            agora = time.time()
-            if geo is None or agora - geo_t > 3:
-                geo = janela_chiaki(); geo_t = agora
+            now = time.time()
+            if geo is None or now - geo_t > 3:
+                geo = chiaki_window(); geo_t = now
                 if geo is None:
-                    print("Não achei a janela do Chiaki, esperando...", flush=True)
+                    print(msg("no_window"), flush=True)
                     time.sleep(2); continue
-            b = brilho(raiz, *geo)
+            b = brightness(root, *geo)
             if base is None:
                 base = b
-            if b - base > SALTO and agora - ultimo > ESPERA:
-                ultimo = agora; raios += 1
+            if b - base > FLASH_JUMP and now - last > COOLDOWN:
+                last = now; bolts += 1
                 if u:
-                    if ATRASO: time.sleep(ATRASO)
-                    aperta(u, BTN_X)
-                print(f"⚡ raio {raios}  (brilho {base:.0f} -> {b:.0f})", flush=True)
-            elif b - base <= SALTO:
-                base = base * 0.9 + b * 0.1      # acompanha o brilho normal da cena
-            if TESTE and agora - t_log > 0.5:
-                print(f"brilho {b:.0f}  normal {base:.0f}", flush=True); t_log = agora
+                    if DELAY: time.sleep(DELAY)
+                    press(u, BTN_CROSS)
+                print(msg("bolt", n=bolts, a=f"{base:.0f}", b=f"{b:.0f}"), flush=True)
+            elif b - base <= FLASH_JUMP:
+                base = base * 0.9 + b * 0.1      # follows the normal brightness of the scene
+            if TEST and now - t_log > 0.5:
+                print(msg("level", b=f"{b:.0f}", a=f"{base:.0f}"), flush=True); t_log = now
             time.sleep(0.008)
     except KeyboardInterrupt:
-        print(f"\nParado. Raios detectados: {raios}", flush=True)
+        print(msg("stopped", n=bolts), flush=True)
     finally:
         if u:
             fcntl.ioctl(u, ioc(0, "U", 2, 0)); os.close(u)
