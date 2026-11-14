@@ -131,7 +131,7 @@ sudo udevadm control --reload && sudo udevadm trigger
    ```
 
 5. Nos **primeiros raios**, olhe a tela e confira se o personagem está **pulando para desviar**.
-6. Passou de **200**? Deixe cair mais alguns por segurança, aperte **Ctrl+C** no terminal e vá buscar o prêmio no **marco de pedra** das Planícies.
+6. Passou de **200**? Deixe cair mais uns 10 a 15 por segurança, aperte **Ctrl+C** no terminal e vá direto, sem levar raio, até o **baú do lado de fora da Agência de Viagem da Rin** (no meio das Planícies, entre a parte norte e a sul). A Venus Sigil está nele.
 
 > ⚠️ **Desligue o script (Ctrl+C) antes de sair das Planícies.** Qualquer clarão na tela, como o começo de uma batalha, faz ele apertar X.
 
