@@ -73,7 +73,7 @@ def main():
     if u:
         time.sleep(1.5)   # dá tempo do Chiaki enxergar o controle novo
     print("Modo TESTE: só mostrando o brilho." if TESTE else
-          "Rodando! Deixe o personagem parado nas Planícies dos Trovões. Ctrl+C para parar.", flush=True)
+          "Rodando! Pode andar pelas Planícies dos Trovões (de preferência em volta das crateras). Ctrl+C para parar.", flush=True)
     base = None; ultimo = 0; raios = 0; geo = None; geo_t = 0; t_log = time.time()
     try:
         while True:
