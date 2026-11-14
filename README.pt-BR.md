@@ -214,6 +214,18 @@ Você não precisa ficar parado: pode andar pelo mapa que o programa desvia por 
 
 **O melhor é ficar andando em volta das crateras.** Nas Planícies há crateras no chão, e um raio cai quase sempre que você entra nelas. Contornando as crateras, entrando e saindo, os raios ficam frequentes e previsíveis, e os 200 chegam bem mais rápido.
 
+### ⭐ A cratera perfeita
+
+<p align="center">
+  <img src="docs/cratera.webp" alt="Tidus ao lado da melhor cratera, ao sul da Agência de Viagem da Rin, com o minimapa no canto" width="640">
+  <br>
+  <em>A melhor cratera para desviar: ao sul da Agência de Viagem da Rin. Use o formato do minimapa para achar.</em>
+</p>
+
+Esta cratera é o melhor lugar de todos. **Fique entrando e saindo dela usando só o analógico**: os raios caem um atrás do outro, e o programa no terminal aperta X sozinho em cada um. Você não precisa tocar em nenhum outro botão.
+
+**Como chegar:** saindo da **Agência de Viagem da Rin**, vá para o **sul**, voltando pelo caminho de onde você veio, em direção à saída para **Guadosalam** (a cidade dos Guado, onde mora o Seymour). Vá olhando o **minimapa** no canto de cima: quando ele ficar com o formato da imagem acima, a cratera está bem na sua frente.
+
 Algumas dicas:
 - **Evite ficar perto das torres de para-raios.** Elas protegem você, e aí quase não caem raios.
 - **Batalhas aleatórias:** o começo de uma batalha tem um clarão, e o programa pode apertar X nessa hora. No máximo ele escolhe um comando no menu, mas fique de olho.

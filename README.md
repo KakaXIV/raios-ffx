@@ -215,6 +215,18 @@ You don't need to stand still: you can walk around the map and the program dodge
 
 **The best spot is walking around the craters.** There are craters in the ground on the Thunder Plains, and lightning strikes almost every time you step into one. If you circle the craters, stepping in and out, the bolts become frequent and predictable, and you'll reach 200 much faster.
 
+### ⭐ The perfect crater
+
+<p align="center">
+  <img src="docs/cratera.webp" alt="Tidus standing next to the best crater, south of Rin's Travel Agency, with the minimap in the corner" width="640">
+  <br>
+  <em>The best crater for dodging: south of Rin's Travel Agency. Use the minimap shape to find it.</em>
+</p>
+
+This crater is the best spot of all. **Just keep walking in and out of it using only the analog stick**: lightning strikes over and over, and the program in the terminal presses ✕ for every bolt automatically. You don't need to touch any other button.
+
+**How to get there:** from **Rin's Travel Agency**, head **south**, back the way you came, toward the exit to **Guadosalam** (the Guado town where Seymour lives). Keep an eye on the **minimap** in the top-left corner: when it matches the shape in the picture above, the crater is right in front of you.
+
 A few tips:
 - **Stay away from the lightning towers.** They protect you, so hardly any lightning falls near them.
 - **Random battles:** the start of a battle has a flash, and the program may press ✕ at that moment. At most it picks a command in the menu, but keep an eye on it.
