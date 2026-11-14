@@ -1,0 +1,107 @@
+#!/usr/bin/python3 -I
+# raios-ffx — Final Fantasy X, Planícies dos Trovões (Thunder Plains)
+# Desvia dos raios sozinho jogando via Remote Play com o Chiaki (chiaki-ng) no Linux.
+#
+# Como funciona: olha a janela do Chiaki ~60 vezes por segundo; quando ela fica
+# clara de repente (o clarão do raio), aperta X num controle virtual extra.
+# O Chiaki junta os botões de todos os controles conectados e manda para o console.
+# Licença MIT.
+# Uso:  raios-ffx            -> modo automático (Ctrl+C para parar)
+#       raios-ffx --teste    -> só mostra o brilho da tela, não aperta nada
+#       raios-ffx --atraso 50 -> espera 50 ms depois do clarão antes de apertar
+import os, sys, time, struct, fcntl, subprocess
+from Xlib import display, X
+
+SALTO = 55          # quanto o brilho precisa subir de repente para contar como raio
+ESPERA = 1.2        # segundos sem apertar de novo depois de um raio
+BTN_X = 0x122       # botão X (Cross) no mapeamento que o Chiaki usa para este controle virtual
+TESTE = "--teste" in sys.argv
+ATRASO = 0.0
+if "--atraso" in sys.argv:
+    ATRASO = int(sys.argv[sys.argv.index("--atraso") + 1]) / 1000
+
+def janela_chiaki():
+    out = subprocess.run(["wmctrl", "-lG"], capture_output=True, text=True).stdout
+    for linha in out.splitlines():
+        p = linha.split(None, 7)
+        if len(p) >= 8 and "chiaki" in p[7].lower():
+            x, y, w, h = map(int, p[2:6])
+            return x, y, w, h
+    return None
+
+def ioc(d, t, nr, size):
+    return (d << 30) | (size << 16) | (ord(t) << 8) | nr
+
+def cria_controle():
+    u = os.open("/dev/uinput", os.O_WRONLY | os.O_NONBLOCK)
+    fcntl.ioctl(u, ioc(1, "U", 100, 4), 1)   # EV_KEY
+    fcntl.ioctl(u, ioc(1, "U", 100, 4), 3)   # EV_ABS
+    for k in range(0x120, 0x12C):
+        fcntl.ioctl(u, ioc(1, "U", 101, 4), k)
+    absmin = [0] * 64; absmax = [0] * 64; flat = [0] * 64
+    for a in (0, 1, 2, 5):
+        fcntl.ioctl(u, ioc(1, "U", 103, 4), a); absmax[a] = 255; flat[a] = 15
+    for a in (0x10, 0x11):
+        fcntl.ioctl(u, ioc(1, "U", 103, 4), a); absmin[a] = -1; absmax[a] = 1
+    data = b"Raios FFX".ljust(80, b"\0") + struct.pack("HHHHi", 3, 0x0810, 0x0001, 0x0110, 0)
+    data += struct.pack("64i", *absmax) + struct.pack("64i", *absmin)
+    data += struct.pack("64i", *([0] * 64)) + struct.pack("64i", *flat)
+    os.write(u, data)
+    fcntl.ioctl(u, ioc(0, "U", 1, 0))
+    for a in (0, 1, 2, 5):   # analógicos parados no meio
+        os.write(u, struct.pack("llHHi", 0, 0, 3, a, 127))
+    os.write(u, struct.pack("llHHi", 0, 0, 0, 0, 0))
+    return u
+
+def aperta(u, botao):
+    ev = lambda t, c, v: struct.pack("llHHi", 0, 0, t, c, v)
+    os.write(u, ev(1, botao, 1) + ev(0, 0, 0))
+    time.sleep(0.08)
+    os.write(u, ev(1, botao, 0) + ev(0, 0, 0))
+
+def brilho(raiz, x, y, w, h):
+    # pega o meio da janela (evita bordas e barra de título)
+    cx, cy, cw, ch = x + w // 8, y + h // 8, w * 3 // 4, h * 3 // 4
+    img = raiz.get_image(cx, cy, cw, ch, X.ZPixmap, 0xFFFFFFFF).data
+    amostra = img[1::4 * 37]          # canal verde, 1 a cada 37 pixels
+    return sum(amostra) / max(1, len(amostra))
+
+def main():
+    d = display.Display()
+    raiz = d.screen().root
+    u = None if TESTE else cria_controle()
+    if u:
+        time.sleep(1.5)   # dá tempo do Chiaki enxergar o controle novo
+    print("Modo TESTE: só mostrando o brilho." if TESTE else
+          "Rodando! Deixe o personagem parado nas Planícies dos Trovões. Ctrl+C para parar.", flush=True)
+    base = None; ultimo = 0; raios = 0; geo = None; geo_t = 0; t_log = time.time()
+    try:
+        while True:
+            agora = time.time()
+            if geo is None or agora - geo_t > 3:
+                geo = janela_chiaki(); geo_t = agora
+                if geo is None:
+                    print("Não achei a janela do Chiaki, esperando...", flush=True)
+                    time.sleep(2); continue
+            b = brilho(raiz, *geo)
+            if base is None:
+                base = b
+            if b - base > SALTO and agora - ultimo > ESPERA:
+                ultimo = agora; raios += 1
+                if u:
+                    if ATRASO: time.sleep(ATRASO)
+                    aperta(u, BTN_X)
+                print(f"⚡ raio {raios}  (brilho {base:.0f} -> {b:.0f})", flush=True)
+            elif b - base <= SALTO:
+                base = base * 0.9 + b * 0.1      # acompanha o brilho normal da cena
+            if TESTE and agora - t_log > 0.5:
+                print(f"brilho {b:.0f}  normal {base:.0f}", flush=True); t_log = agora
+            time.sleep(0.008)
+    except KeyboardInterrupt:
+        print(f"\nParado. Raios detectados: {raios}", flush=True)
+    finally:
+        if u:
+            fcntl.ioctl(u, ioc(0, "U", 2, 0)); os.close(u)
+
+if __name__ == "__main__":
+    main()
