@@ -1,121 +1,124 @@
 # ⚡ raios-ffx
 
-**Desvie dos 200 raios das Planícies dos Trovões, em Final Fantasy X, sem precisar apertar nada.**
+🇺🇸 **English** · 🇧🇷 [Leia em português](README.pt-BR.md)
 
-Um programa pequeno para Linux que observa a tela do **Chiaki** (o app de Remote Play de PlayStation) e aperta **X** sozinho no exato momento em que o raio clareia a tela. Você pode andar pelas Planícies à vontade, ou até largar o controle, que o personagem desvia sozinho. No final, a **Venus Sigil** (o selo da arma celestial da Lulu) está esperando por você.
+**Dodge all 200 lightning bolts on the Thunder Plains in Final Fantasy X without pressing a thing.**
 
-> Feito e testado com **Final Fantasy X HD (PlayStation 4)** jogado via **Remote Play no chiaki-ng**, em Linux.
+A small Linux program that watches the **Chiaki** window (the PlayStation Remote Play app) and presses **✕** for you the instant the lightning flashes the screen. You can walk around the Thunder Plains freely, or even put the controller down, and your character dodges on their own. At the end, the **Venus Sigil** (the sigil for Lulu's celestial weapon) is waiting for you.
 
----
-
-## 📖 Sumário
-
-- [O desafio](#-o-desafio)
-- [Como o programa resolve](#-como-o-programa-resolve)
-- [Onde funciona](#-onde-funciona)
-- [O que você precisa](#-o-que-você-precisa)
-- [Antes de começar: o terminal](#-antes-de-começar-o-terminal)
-- [Instalação passo a passo](#-instalação-passo-a-passo)
-- [Como usar](#-como-usar)
-- [Onde ficar nas Planícies](#-onde-ficar-nas-planícies)
-- [Dicas e ajustes](#-dicas-e-ajustes)
-- [Problemas comuns](#-problemas-comuns)
-- [Perguntas frequentes](#-perguntas-frequentes)
-- [Licença](#-licença)
+> Built and tested with **Final Fantasy X HD (PlayStation 4)** played over **Remote Play with chiaki-ng** on Linux.
 
 ---
 
-## 🎯 O desafio
+## 📖 Contents
 
-Nas **Planícies dos Trovões** (*Thunder Plains*), raios caem o tempo todo. Logo antes de cada raio, a tela pisca em branco. Se você apertar **X** nesse instante, o personagem dá um pulinho e desvia.
+- [The challenge](#-the-challenge)
+- [How the program solves it](#-how-the-program-solves-it)
+- [Where it works](#-where-it-works)
+- [What you need](#-what-you-need)
+- [Before you start: the terminal](#-before-you-start-the-terminal)
+- [Step-by-step installation](#-step-by-step-installation)
+- [How to use it](#-how-to-use-it)
+- [Where to stand on the Thunder Plains](#-where-to-stand-on-the-thunder-plains)
+- [Tips and tweaks](#-tips-and-tweaks)
+- [Troubleshooting](#-troubleshooting)
+- [FAQ](#-faq)
+- [License](#-license)
 
-Para ganhar a **Venus Sigil**, que completa a arma celestial da Lulu (*Onion Knight*), é preciso desviar de **200 raios seguidos**. São uns bons minutos de concentração total, olhando para a tela, sem errar nenhuma vez. Se levar um raio, a contagem volta para zero. E o jogo **não mostra** quantos você já desviou.
+---
 
-É o tipo de tarefa repetitiva que um computador faz melhor que a gente.
+## 🎯 The challenge
 
-## 🧠 Como o programa resolve
+On the **Thunder Plains**, lightning strikes all the time. Right before each bolt, the screen flashes white. If you press **✕** at that moment, your character jumps and dodges.
 
-A ideia é simples:
+To earn the **Venus Sigil**, which completes Lulu's celestial weapon (*Onion Knight*), you must dodge **200 bolts in a row**. That's several minutes of total focus, staring at the screen, without a single mistake. Get hit once and the count goes back to zero. And the game **never shows** how many you've dodged.
+
+It's exactly the kind of repetitive task a computer does better than we do.
+
+## 🧠 How the program solves it
+
+The idea is simple:
 
 ```
- ┌──────────────┐     ~60x por segundo      ┌─────────────────────┐
- │ Janela do    │ ────────────────────────▶ │ Mede o brilho médio │
- │ Chiaki       │                           │ do meio da tela     │
- └──────────────┘                           └──────────┬──────────┘
+ ┌──────────────┐       ~60x per second     ┌──────────────────────┐
+ │ Chiaki       │ ────────────────────────▶ │ Measures the average │
+ │ window       │                           │ brightness of the    │
+ └──────────────┘                           │ center of the screen │
+                                            └──────────┬───────────┘
                                                        │
-                       brilho deu um salto repentino?  │  (ex.: 60 → 200)
+                     sudden jump in brightness?        │  (e.g. 60 → 200)
                                                        ▼
- ┌──────────────┐                           ┌─────────────────────┐
- │ PlayStation  │ ◀──── Chiaki envia ────── │ Aperta X num        │
- │ (desvia! ⚡) │                           │ controle virtual    │
- └──────────────┘                           └─────────────────────┘
+ ┌──────────────┐                           ┌──────────────────────┐
+ │ PlayStation  │ ◀──── Chiaki sends ────── │ Presses ✕ on a       │
+ │ (dodge! ⚡)  │                           │ virtual controller   │
+ └──────────────┘                           └──────────────────────┘
 ```
 
-1. **Olha a tela.** O programa encontra a janela do Chiaki e, cerca de 60 vezes por segundo, mede o quão clara está a parte central dela.
-2. **Aprende o "normal".** As Planícies são escuras. O programa acompanha o brilho normal da cena, que muda devagar conforme a câmera se mexe ou você anda.
-3. **Percebe o raio.** Quando o brilho dá um salto repentino e grande, é o clarão do raio.
-4. **Aperta X.** O programa cria um **controle virtual** (um controle "de mentira", invisível, usando um recurso do próprio Linux chamado `uinput`) e aperta X nele. O Chiaki junta os botões de todos os controles conectados e manda para o console. Por isso **o seu controle de verdade continua funcionando normalmente**: você pode andar enquanto o programa cuida dos raios.
-5. **Espera um pouco.** Depois de cada raio, fica pouco mais de 1 segundo sem apertar, para não apertar duas vezes no mesmo clarão.
+1. **Watches the screen.** The program finds the Chiaki window and, about 60 times per second, measures how bright its central area is.
+2. **Learns what "normal" looks like.** The Thunder Plains are dark. The program keeps track of the scene's normal brightness, which changes slowly as the camera moves or you walk around.
+3. **Spots the lightning.** When the brightness suddenly jumps by a lot, that's the lightning flash.
+4. **Presses ✕.** The program creates a **virtual controller** (an invisible "pretend" controller, using a Linux feature called `uinput`) and presses ✕ on it. Chiaki combines the buttons from every connected controller and sends them to the console. That's why **your real controller keeps working normally**: you can walk around while the program takes care of the lightning.
+5. **Waits a moment.** After each bolt, it waits a little over 1 second before pressing again, so it doesn't press twice for the same flash.
 
-Nada é instalado no console e nada é modificado no jogo. O programa só faz o que você faria: olhar a tela e apertar um botão na hora certa.
+Nothing is installed on the console and nothing in the game is modified. The program only does what you would do: watch the screen and press a button at the right time.
 
-**Por que ele é tão leve?** De propósito, ele não usa bibliotecas grandes de processamento de imagem. Mede o brilho com contas simples, o que basta para perceber o clarão. Só precisa do Python (que já vem no Linux) e de dois pacotinhos pequenos.
+**Why is it so lightweight?** On purpose, it doesn't use any big image-processing libraries. It measures brightness with simple math, which is all it takes to catch the flash. It only needs Python (which already comes with Linux) and two small packages.
 
-## 🕹️ Onde funciona
+## 🕹️ Where it works
 
-| Situação | Funciona? |
+| Setup | Works? |
 |---|---|
-| **PS4 + Chiaki (chiaki-ng) no Linux** | ✅ Sim, foi onde ele foi feito e testado |
-| **PS5 + Chiaki no Linux** | 🟡 Deve funcionar. O Chiaki também conecta ao PS5 do mesmo jeito, mas ainda não foi testado |
-| Versão de PC (Steam) | ❓ Não testado. Este projeto, por enquanto, é só para PlayStation via Chiaki |
-| Windows ou macOS | ❌ Não. O programa usa recursos específicos do Linux (`uinput` e X11) |
-| Linux com Wayland | ⚠️ Provavelmente não. A captura de tela usa X11; em Wayland pode vir tudo preto |
+| **PS4 + Chiaki (chiaki-ng) on Linux** | ✅ Yes, this is where it was built and tested |
+| **PS5 + Chiaki on Linux** | 🟡 Should work. Chiaki connects to the PS5 the same way, but it hasn't been tested yet |
+| PC version (Steam) | ❓ Not tested. For now, this project is only for PlayStation through Chiaki |
+| Windows or macOS | ❌ No. The program relies on Linux-specific features (`uinput` and X11) |
+| Linux on Wayland | ⚠️ Probably not. Screen capture uses X11; on Wayland the image may come out black |
 
-## 🧰 O que você precisa
+## 🧰 What you need
 
-- **Linux** usando **X11** (o padrão no Linux Mint; no Ubuntu, escolha a sessão "Xorg" na tela de login)
-- **Chiaki** ou **chiaki-ng** já conectado ao seu PlayStation (instalado pela loja de aplicativos/Flatpak ou de outro jeito, tanto faz)
-- **Final Fantasy X** (ou FFX/X-2 HD Remaster) aberto no console
-- **Python 3**: já vem instalado em praticamente todo Linux. Você não precisa baixar.
-- Dois pacotes pequenos, que a instalação abaixo coloca para você se faltarem:
-  - `python3-xlib`: deixa o programa "olhar" a tela
-  - `wmctrl`: deixa o programa achar a janela do Chiaki
+- **Linux** running **X11** (the default on Linux Mint; on Ubuntu, pick the "Xorg" session on the login screen)
+- **Chiaki** or **chiaki-ng** already connected to your PlayStation (installed from the app store/Flatpak or any other way, it doesn't matter)
+- **Final Fantasy X** (or FFX/X-2 HD Remaster) running on the console
+- **Python 3**: it already comes with virtually every Linux system. You don't need to download it.
+- Two small packages, which the installation below adds for you if they're missing:
+  - `python3-xlib`: lets the program "see" the screen
+  - `wmctrl`: lets the program find the Chiaki window
 
-## 💻 Antes de começar: o terminal
+## 💻 Before you start: the terminal
 
-Tudo aqui é feito no **terminal**, aquela janela preta (ou escura) onde se digitam comandos. Não precisa saber programar: é só **copiar e colar** os comandos deste guia.
+Everything here is done in the **terminal**, the black (or dark) window where you type commands. You don't need to know how to program: just **copy and paste** the commands from this guide.
 
-**Como abrir o terminal:**
-- Aperte **Ctrl + Alt + T** ao mesmo tempo. Na maioria dos Linux (Mint, Ubuntu e outros), isso abre o terminal na hora.
-- Ou procure por **"Terminal"** no menu de aplicativos.
+**How to open the terminal:**
+- Press **Ctrl + Alt + T** at the same time. On most Linux systems (Mint, Ubuntu and others), this opens the terminal right away.
+- Or search for **"Terminal"** in your applications menu.
 
-**Como colar um comando no terminal:**
-1. Aqui no GitHub, passe o mouse sobre a caixa cinza do comando e clique no botão de **copiar** 📋 que aparece no canto direito.
-2. No terminal, cole com **Ctrl + Shift + V** (atenção: no terminal é **com Shift**) ou com o botão direito do mouse → **Colar**.
-3. Aperte **Enter**.
+**How to paste a command into the terminal:**
+1. Here on GitHub, hover over the grey command box and click the **copy** button 📋 that appears in its right corner.
+2. In the terminal, paste with **Ctrl + Shift + V** (note: in the terminal it's **with Shift**) or right-click → **Paste**.
+3. Press **Enter**.
 
-**Quando o terminal pedir senha:**
-- Alguns comandos começam com `sudo`, que significa "fazer como administrador". Eles pedem **a mesma senha que você usa para entrar no computador**.
-- **Enquanto você digita a senha, nada aparece na tela**, nem bolinhas nem asteriscos. Isso é normal e é para sua segurança. Digite a senha e aperte **Enter**.
+**When the terminal asks for a password:**
+- Some commands start with `sudo`, which means "do this as administrator". They ask for **the same password you use to log in to your computer**.
+- **Nothing shows up on screen while you type the password**, not even dots or asterisks. That's normal and it's for your security. Type the password and press **Enter**.
 
-**Como saber se deu certo:** quando o comando termina, o terminal volta a mostrar a linha onde você digita (algo como `seunome@computador:~$`). Se aparecer uma mensagem de erro, veja [Problemas comuns](#-problemas-comuns).
+**How to tell it worked:** when a command finishes, the terminal shows the line where you type again (something like `yourname@computer:~$`). If you see an error message, check [Troubleshooting](#-troubleshooting).
 
-## 📦 Instalação passo a passo
+## 📦 Step-by-step installation
 
-Você só faz isso **uma vez**. São 3 passos.
+You only do this **once**. There are 3 steps.
 
-### Passo 1: instalar os pacotes que o programa usa
+### Step 1: install the packages the program uses
 
-Copie, cole no terminal e aperte Enter. Ele vai pedir sua senha (lembre: ela não aparece enquanto você digita). Se perguntar `Continuar? [S/n]`, digite **S** e aperte Enter.
+Copy, paste into the terminal and press Enter. It will ask for your password (remember: it doesn't show while you type). If it asks `Do you want to continue? [Y/n]`, type **Y** and press Enter.
 
-**Linux Mint, Ubuntu, Pop!_OS, Debian e parecidos:**
+**Linux Mint, Ubuntu, Pop!_OS, Debian and similar:**
 
 ```bash
 sudo apt install python3-xlib wmctrl
 ```
 
 <details>
-<summary>Usa Fedora ou Arch? Clique aqui</summary>
+<summary>Using Fedora or Arch? Click here</summary>
 
 Fedora:
 
@@ -131,11 +134,11 @@ sudo pacman -S python-xlib wmctrl
 
 </details>
 
-✅ **Deu certo se** terminar sem erro. Se aparecer *"já é a versão mais nova"*, também está certo: significa que você já tinha os pacotes.
+✅ **It worked if** it finishes without errors. If it says *"is already the newest version"*, that's fine too: it means you already had the packages.
 
-### Passo 2: baixar o programa
+### Step 2: download the program
 
-Copie e cole **o bloco inteiro** de uma vez (são 3 linhas) e aperte Enter:
+Copy and paste **the whole block** at once (it's 3 lines) and press Enter:
 
 ```bash
 mkdir -p ~/.local/bin
@@ -143,44 +146,44 @@ curl -o ~/.local/bin/raios-ffx https://raw.githubusercontent.com/KakaXIV/raios-f
 chmod +x ~/.local/bin/raios-ffx
 ```
 
-O que cada linha faz, para você saber:
-1. Cria a pasta onde ficam os seus programas pessoais (`~/.local/bin`), caso ela ainda não exista.
-2. Baixa o programa daqui do GitHub para essa pasta.
-3. Marca o arquivo como "programa", para ele poder ser executado.
+What each line does, so you know:
+1. Creates the folder for your personal programs (`~/.local/bin`), if it doesn't exist yet.
+2. Downloads the program from this GitHub page into that folder.
+3. Marks the file as a "program", so it can be run.
 
-✅ **Deu certo se** aparecer uma tabelinha de download terminando em `100`.
+✅ **It worked if** you see a little download table ending in `100`.
 
-> **Prefere sem terminal?** Clique no botão verde **Code → Download ZIP** aqui no topo da página, extraia o arquivo, e copie o arquivo `raios-ffx` para a pasta `.local/bin` dentro da sua pasta pessoal (aperte **Ctrl + H** no gerenciador de arquivos para ver pastas que começam com ponto). Depois rode só a terceira linha acima (`chmod +x ...`).
+> **Rather skip the terminal for this step?** Click the green **Code → Download ZIP** button at the top of this page, extract it, and copy the `raios-ffx` file into the `.local/bin` folder inside your home folder (press **Ctrl + H** in your file manager to see folders that start with a dot). Then run only the third line above (`chmod +x ...`).
 
-### Passo 3: conferir a permissão do controle virtual
+### Step 3: check the virtual controller permission
 
-O programa precisa de permissão para criar o controle invisível. Confira com:
+The program needs permission to create the invisible controller. Check it with:
 
 ```bash
 test -w /dev/uinput && echo "Tudo certo" || echo "Precisa liberar o uinput"
 ```
 
-- Se aparecer **"Tudo certo"**: pronto, pode pular para [Como usar](#-como-usar). (Quem tem a **Steam** instalada quase sempre já tem essa permissão.)
-- Se aparecer **"Precisa liberar o uinput"**: copie e cole o bloco abaixo, aperte Enter, digite sua senha e depois **reinicie o computador**:
+- If it prints **"Tudo certo"** ("all good"): you're done, skip to [How to use it](#-how-to-use-it). (If you have **Steam** installed, you almost always have this permission already.)
+- If it prints **"Precisa liberar o uinput"** ("uinput needs to be allowed"): copy and paste the block below, press Enter, type your password and then **restart your computer**:
 
 ```bash
 echo 'KERNEL=="uinput", SUBSYSTEM=="misc", TAG+="uaccess", OPTIONS+="static_node=uinput"' | sudo tee /etc/udev/rules.d/60-uinput-usuario.rules
 sudo udevadm control --reload && sudo udevadm trigger
 ```
 
-Depois de reiniciar, rode o comando de conferir de novo. Deve aparecer "Tudo certo".
+After restarting, run the check command again. It should print "Tudo certo".
 
-## ▶️ Como usar
+## ▶️ How to use it
 
-1. Abra o **Chiaki** e conecte ao seu PlayStation. Deixe a janela dele **visível** na tela: não minimize e não cubra o meio dela com outra janela (o programa precisa "ver" o clarão).
-2. No jogo, vá até as **Planícies dos Trovões**.
-3. Abra o terminal (**Ctrl + Alt + T**), digite o comando abaixo e aperte Enter:
+1. Open **Chiaki** and connect to your PlayStation. Keep its window **visible** on screen: don't minimize it and don't cover its center with another window (the program needs to "see" the flash).
+2. In the game, go to the **Thunder Plains**.
+3. Open the terminal (**Ctrl + Alt + T**), type the command below and press Enter:
 
    ```bash
    raios-ffx
    ```
 
-4. Pronto, ele está ligado. A cada raio, aparece uma linha nova no terminal:
+4. That's it, it's on. Every time lightning strikes, a new line shows up in the terminal:
 
    ```
    Rodando! Pode andar pelas Planícies dos Trovões (de preferência em volta das crateras). Ctrl+C para parar.
@@ -188,106 +191,105 @@ Depois de reiniciar, rode o comando de conferir de novo. Deve aparecer "Tudo cer
    ⚡ raio 2  (brilho 59 -> 203)
    ```
 
-   Deixe essa janela do terminal aberta (pode ficar atrás do Chiaki) enquanto joga.
+   The messages are in Portuguese: *"Running! You can walk around the Thunder Plains (preferably around the craters). Ctrl+C to stop."*, and each `⚡ raio N` line means "lightning bolt number N" (`brilho` = brightness). Leave this terminal window open (it can sit behind Chiaki) while you play.
 
-5. **Você pode andar à vontade.** O personagem pula sozinho na hora do raio, mesmo andando. Não precisa ficar parado num lugar. Veja a seguir [onde é melhor ficar](#-onde-ficar-nas-planícies).
-6. Nos **primeiros raios**, olhe a tela e confira se o personagem está **pulando para desviar**.
-7. Passou de **200**? Deixe cair mais uns **10 a 15** por segurança. Depois:
-   - volte ao terminal e aperte **Ctrl + C** para desligar o programa;
-   - vá direto, sem levar raio, até o **baú do lado de fora da Agência de Viagem da Rin** (no meio das Planícies, entre a parte norte e a sul). A Venus Sigil está nele.
+5. **You can walk around freely.** Your character jumps on their own when the lightning strikes, even while walking. You don't have to stand still. See [where it's best to be](#-where-to-stand-on-the-thunder-plains) below.
+6. For the **first few bolts**, watch the screen and make sure your character is **jumping to dodge**.
+7. Past **200**? Let another **10 to 15** strike, just to be safe. Then:
+   - go back to the terminal and press **Ctrl + C** to turn the program off;
+   - head straight, without getting hit, to the **chest just outside Rin's Travel Agency** (in the middle of the Thunder Plains, between the northern and southern parts). The Venus Sigil is inside.
 
-> ⚠️ **Desligue o programa (Ctrl + C no terminal) antes de sair das Planícies.** Qualquer clarão na tela, como o começo de uma batalha, faz ele apertar X.
+> ⚠️ **Turn the program off (Ctrl + C in the terminal) before leaving the Thunder Plains.** Any flash on screen, such as the start of a battle, makes it press ✕.
 
-> ℹ️ **O número no terminal não é a contagem do jogo.** Ele conta os clarões que viu desde que foi ligado. Se o personagem levar um raio (por exemplo, numa batalha), o jogo zera a contagem dele, mas o programa continua contando. Nesse caso, aperte **Ctrl + C** e ligue de novo com `raios-ffx` para recomeçar do zero.
+> ℹ️ **The number in the terminal is not the game's count.** It counts the flashes it has seen since it was started. If your character gets hit by lightning (during a battle, for example), the game resets its count, but the program keeps counting. If that happens, press **Ctrl + C** and start it again with `raios-ffx` to begin from zero.
 
-## 🗺️ Onde ficar nas Planícies
+## 🗺️ Where to stand on the Thunder Plains
 
-Você não precisa ficar parado: pode andar pelo mapa que o programa desvia por você.
+You don't need to stand still: you can walk around the map and the program dodges for you.
 
-**O melhor é ficar andando em volta das crateras.** Nas Planícies há crateras no chão, e um raio cai quase sempre que você entra nelas. Contornando as crateras, entrando e saindo, os raios ficam frequentes e previsíveis, e os 200 chegam bem mais rápido.
+**The best spot is walking around the craters.** There are craters in the ground on the Thunder Plains, and lightning strikes almost every time you step into one. If you circle the craters, stepping in and out, the bolts become frequent and predictable, and you'll reach 200 much faster.
 
-Algumas dicas:
-- **Evite ficar perto das torres de para-raios.** Elas protegem você, e aí quase não caem raios.
-- **Batalhas aleatórias:** o começo de uma batalha tem um clarão, e o programa pode apertar X nessa hora. No máximo ele escolhe um comando no menu, mas fique de olho.
-- **Não saia das Planícies** até pegar o prêmio: sair zera a contagem.
+A few tips:
+- **Stay away from the lightning towers.** They protect you, so hardly any lightning falls near them.
+- **Random battles:** the start of a battle has a flash, and the program may press ✕ at that moment. At most it picks a command in the menu, but keep an eye on it.
+- **Don't leave the Thunder Plains** until you've collected the prize: leaving resets the count.
 
-## 🔧 Dicas e ajustes
+## 🔧 Tips and tweaks
 
-**Modo teste.** Mostra o brilho da tela em tempo real **sem apertar nada**. Bom para conferir se o programa está "enxergando" o Chiaki:
+**Test mode.** Shows the screen brightness in real time **without pressing anything**. Handy to check that the program can "see" Chiaki:
 
 ```bash
 raios-ffx --teste
 ```
 
-Os números devem mudar quando você mexe a câmera no jogo. Para sair, **Ctrl + C**.
+The numbers should change when you move the camera in the game. To quit, press **Ctrl + C**.
 
-**Atraso.** Se o personagem estiver levando raio porque apertou cedo demais (raro), dá para esperar alguns milésimos de segundo depois do clarão:
+**Delay.** If your character gets hit because the press came too early (rare), you can wait a few milliseconds after the flash:
 
 ```bash
 raios-ffx --atraso 50
 ```
 
-**Sensibilidade.** No começo do arquivo `raios-ffx` há dois valores que você pode mudar com qualquer editor de texto:
+**Sensitivity.** At the top of the `raios-ffx` file there are two values you can change with any text editor:
 
-| Valor | O que faz | Padrão |
+| Value | What it does | Default |
 |---|---|---|
-| `SALTO` | Quanto o brilho precisa subir de repente para contar como raio. Aumente se ele estiver apertando sem raio; diminua se ele estiver perdendo raios. | `55` |
-| `ESPERA` | Segundos sem apertar de novo depois de um raio | `1.2` |
+| `SALTO` | How much the brightness must jump suddenly to count as lightning. Raise it if it presses with no lightning; lower it if it misses bolts. | `55` |
+| `ESPERA` | Seconds to wait before pressing again after a bolt | `1.2` |
 
-**Conexão.** Quanto mais estável a conexão entre o computador e o console, melhor. Cabo de rede no console ajuda bastante.
+**Connection.** The more stable the connection between your computer and the console, the better. A network cable on the console helps a lot.
 
-## 🩹 Problemas comuns
+## 🩹 Troubleshooting
 
-**`raios-ffx: comando não encontrado`**
-A pasta `~/.local/bin` só entra no "caminho" do terminal depois que você sai da sua conta e entra de novo (ou reinicia o computador). Faça isso, ou, enquanto isso, rode o programa pelo caminho completo:
+**`raios-ffx: command not found`**
+The `~/.local/bin` folder only gets added to the terminal's "path" after you log out and back in (or restart your computer). Do that, or, in the meantime, run the program using its full path:
 
 ```bash
 ~/.local/bin/raios-ffx
 ```
 
-**"Não achei a janela do Chiaki, esperando..."**
-O programa procura uma janela com "chiaki" no título. Confira se o Chiaki está aberto e não minimizado. O comando `wmctrl -l` lista as janelas abertas: a do Chiaki deve aparecer nela.
+**"Não achei a janela do Chiaki, esperando..."** ("Couldn't find the Chiaki window, waiting...")
+The program looks for a window with "chiaki" in its title. Make sure Chiaki is open and not minimized. The `wmctrl -l` command lists the open windows: Chiaki's should be in it.
 
-**Os raios caem, mas nada aparece no terminal**
-Rode `raios-ffx --teste`. Se o brilho ficar sempre em `0`, sua sessão provavelmente é Wayland. Saia da conta e, na tela de login, escolha a sessão "Xorg" ou "X11".
+**Lightning strikes, but nothing shows up in the terminal**
+Run `raios-ffx --teste`. If the brightness is always `0`, your session is probably Wayland. Log out and, on the login screen, choose the "Xorg" or "X11" session.
 
-**Aparece "⚡ raio", mas o personagem não pula**
-- Clique uma vez na janela do Chiaki e confira se o seu controle está funcionando nela.
-- Feche e abra o Chiaki **com o programa já rodando**, para ele reconhecer o controle virtual.
-- Confira a permissão do controle virtual ([passo 3](#passo-3-conferir-a-permissão-do-controle-virtual)).
+**"⚡ raio" shows up, but the character doesn't jump**
+- Click once on the Chiaki window and make sure your controller works in it.
+- Close and reopen Chiaki **with the program already running**, so it picks up the virtual controller.
+- Check the virtual controller permission ([step 3](#step-3-check-the-virtual-controller-permission)).
 
-**`PermissionError` com `/dev/uinput`**
-Falta a permissão do [passo 3](#passo-3-conferir-a-permissão-do-controle-virtual).
+**`PermissionError` with `/dev/uinput`**
+The permission from [step 3](#step-3-check-the-virtual-controller-permission) is missing.
 
 **`ModuleNotFoundError: No module named 'Xlib'`**
-Falta o pacote do [passo 1](#passo-1-instalar-os-pacotes-que-o-programa-usa). Rode ele de novo.
+The package from [step 1](#step-1-install-the-packages-the-program-uses) is missing. Run it again.
 
-## ❓ Perguntas frequentes
+## ❓ FAQ
 
-**Preciso baixar o Python ou alguma biblioteca à parte?**
-Não. O Python já vem no Linux, e o passo 1 instala os dois pacotinhos que faltam. Não precisa de `pip`, ambiente virtual nem nada disso.
+**Do I need to download Python or any separate library?**
+No. Python already comes with Linux, and step 1 installs the two small packages that may be missing. No `pip`, virtual environment or anything like that.
 
-**Posso usar o controle enquanto o programa roda?**
-Pode. O programa usa um controle virtual separado, e o Chiaki junta os dois. Você anda com o seu controle e o programa só aperta X na hora do raio.
+**Can I use my controller while the program is running?**
+Yes. The program uses its own separate virtual controller, and Chiaki combines both. You walk around with your controller and the program only presses ✕ when lightning strikes.
 
-**Isso é trapaça? Posso ser banido?**
-O programa não modifica o jogo, o console nem a rede. Ele só olha a tela e aperta um botão, como uma pessoa faria. FFX é um jogo de um jogador só, sem modo online. Mesmo assim, use por sua conta e risco.
+**Is this cheating? Can I get banned?**
+The program doesn't modify the game, the console or the network. It only watches the screen and presses a button, just like a person would. FFX is a single-player game with no online mode. Still, use it at your own risk.
 
-**Pode estragar alguma coisa no meu computador?**
-É bem improvável. O programa não apaga nem altera arquivos, não precisa de senha de administrador para rodar e o controle virtual some sozinho quando ele fecha. A única mudança no sistema é a permissão opcional do passo 3, a mesma que a Steam usa.
+**Can it break anything on my computer?**
+Very unlikely. The program doesn't delete or change any files, doesn't need administrator rights to run, and the virtual controller disappears on its own when it closes. The only system change is the optional permission in step 3, the same one Steam uses.
 
-**Por que o controle virtual se identifica como um adaptador USB genérico?**
-O Chiaki usa a biblioteca SDL para entender os controles. Ela já conhece esse adaptador e sabe qual botão é o X. Assim o programa funciona sem nenhuma configuração extra.
+**Why does the virtual controller identify itself as a generic USB adapter?**
+Chiaki uses the SDL library to understand controllers. SDL already knows this adapter and which button is ✕. That way the program works with no extra setup.
 
-**Funciona com outros jogos?**
-O princípio (reagir a um clarão na tela apertando um botão) serve para outros minigames de reflexo. O código, porém, foi feito e ajustado para as Planícies dos Trovões.
+**Why are the program's messages in Portuguese?**
+It was originally written in Portuguese. The messages are short and are translated in this guide; the commands themselves are the same in any language.
+
+**Does it work with other games?**
+The idea (reacting to a flash on screen by pressing a button) can work for other reflex minigames. The code, however, was built and tuned for the Thunder Plains.
 
 ---
 
-## English summary
+## 📄 License
 
-**raios-ffx** auto-dodges the lightning bolts in Final Fantasy X's Thunder Plains (needed for Lulu's Venus Sigil) when playing a PS4 through **Chiaki / chiaki-ng Remote Play on Linux (X11)**. It watches the Chiaki window, detects the sudden screen flash, and presses ✕ on a virtual `uinput` gamepad that Chiaki merges with your real controller, so you can keep walking around (circling the craters is fastest). Requirements: `python3-xlib`, `wmctrl`, write access to `/dev/uinput`. Run `raios-ffx` in a terminal (or `raios-ffx --teste` to just print brightness). PS5 should work the same way but is untested.
-
-## 📄 Licença
-
-[MIT](LICENSE): use, modifique e compartilhe à vontade.
+[MIT](LICENSE): feel free to use, modify and share.
