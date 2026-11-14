@@ -8,6 +8,12 @@ A small Linux program that watches the **Chiaki** window (the PlayStation Remote
 
 > Built and tested with **Final Fantasy X HD (PlayStation 4)** played over **Remote Play with chiaki-ng** on Linux.
 
+<p align="center">
+  <img src="docs/venus-sigil.webp" alt="Tidus at the chest outside Rin's Travel Agency: &quot;Amazing! You've dodged 200 lightning bolts in a row!&quot;" width="720">
+  <br>
+  <em>The result: 200 bolts dodged in a row with raios-ffx, and the Venus Sigil chest waiting outside Rin's Travel Agency.</em>
+</p>
+
 ---
 
 ## 📖 Contents

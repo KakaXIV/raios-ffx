@@ -8,6 +8,12 @@ Um programa pequeno para Linux que observa a tela do **Chiaki** (o app de Remote
 
 > Feito e testado com **Final Fantasy X HD (PlayStation 4)** jogado via **Remote Play no chiaki-ng**, em Linux.
 
+<p align="center">
+  <img src="docs/venus-sigil.webp" alt="Tidus no baú da Agência de Viagem da Rin: &quot;Amazing! You've dodged 200 lightning bolts in a row!&quot;" width="720">
+  <br>
+  <em>O resultado: 200 raios desviados seguidos com o raios-ffx, e o baú da Venus Sigil esperando na porta da Agência de Viagem da Rin.</em>
+</p>
+
 ---
 
 ## 📖 Sumário
