@@ -102,6 +102,8 @@ Tudo aqui é feito no **terminal**, aquela janela preta (ou escura) onde se digi
 2. No terminal, cole com **Ctrl + Shift + V** (atenção: no terminal é **com Shift**) ou com o botão direito do mouse → **Colar**.
 3. Aperte **Enter**.
 
+> 📋 **O que copiar:** só o texto de dentro das **caixas cinzas** que aparecem logo depois de **👇 Copie isto**. O resto da página (títulos, explicações, listas) é só para você ler: **não cole isso no terminal**. O jeito mais fácil é usar o botão 📋 no canto direito da caixa, que já copia tudo certinho.
+
 **Quando o terminal pedir senha:**
 - Alguns comandos começam com `sudo`, que significa "fazer como administrador". Eles pedem **a mesma senha que você usa para entrar no computador**.
 - **Enquanto você digita a senha, nada aparece na tela**, nem bolinhas nem asteriscos. Isso é normal e é para sua segurança. Digite a senha e aperte **Enter**.
@@ -116,7 +118,7 @@ Você só faz isso **uma vez**. São 3 passos.
 
 Copie, cole no terminal e aperte Enter. Ele vai pedir sua senha (lembre: ela não aparece enquanto você digita). Se perguntar `Continuar? [S/n]`, digite **S** e aperte Enter.
 
-**Linux Mint, Ubuntu, Pop!_OS, Debian e parecidos:**
+👇 **Copie isto** (Linux Mint, Ubuntu, Pop!_OS, Debian e parecidos):
 
 ```bash
 sudo apt install python3-xlib wmctrl
@@ -125,13 +127,13 @@ sudo apt install python3-xlib wmctrl
 <details>
 <summary>Usa Fedora ou Arch? Clique aqui</summary>
 
-Fedora:
+👇 **Copie isto** (Fedora):
 
 ```bash
 sudo dnf install python3-xlib wmctrl
 ```
 
-Arch / Manjaro:
+👇 **Copie isto** (Arch / Manjaro):
 
 ```bash
 sudo pacman -S python-xlib wmctrl
@@ -143,7 +145,7 @@ sudo pacman -S python-xlib wmctrl
 
 ### Passo 2: baixar o programa
 
-Copie e cole **o bloco inteiro** de uma vez (são 3 linhas) e aperte Enter:
+👇 **Copie isto**: a caixa inteira, as 3 linhas juntas (o botão 📋 já copia as 3). Cole no terminal e aperte Enter:
 
 ```bash
 mkdir -p ~/.local/bin
@@ -158,18 +160,22 @@ O que cada linha faz, para você saber:
 
 ✅ **Deu certo se** aparecer uma tabelinha de download terminando em `100`.
 
-> **Prefere sem terminal?** Clique no botão verde **Code → Download ZIP** aqui no topo da página, extraia o arquivo, e copie o arquivo `raios-ffx` para a pasta `.local/bin` dentro da sua pasta pessoal (aperte **Ctrl + H** no gerenciador de arquivos para ver pastas que começam com ponto). Depois rode só a terceira linha acima (`chmod +x ...`).
+> **Prefere sem terminal?** Clique no botão verde **Code → Download ZIP** aqui no topo da página, extraia o arquivo, e copie o arquivo `raios-ffx` para a pasta `.local/bin` dentro da sua pasta pessoal (aperte **Ctrl + H** no gerenciador de arquivos para ver pastas que começam com ponto). Depois cole no terminal só esta linha: `chmod +x ~/.local/bin/raios-ffx`
 
 ### Passo 3: conferir a permissão do controle virtual
 
-O programa precisa de permissão para criar o controle invisível. Confira com:
+O programa precisa de permissão para criar o controle invisível. Confira com o comando abaixo.
+
+👇 **Copie isto:**
 
 ```bash
 test -w /dev/uinput && echo "Tudo certo" || echo "Precisa liberar o uinput"
 ```
 
 - Se aparecer **"Tudo certo"**: pronto, pode pular para [Como usar](#-como-usar). (Quem tem a **Steam** instalada quase sempre já tem essa permissão.)
-- Se aparecer **"Precisa liberar o uinput"**: copie e cole o bloco abaixo, aperte Enter, digite sua senha e depois **reinicie o computador**:
+- Se aparecer **"Precisa liberar o uinput"**: use a caixa abaixo, aperte Enter, digite sua senha e depois **reinicie o computador**.
+
+👇 **Copie isto** (só se apareceu "Precisa liberar o uinput"; a caixa inteira, as 2 linhas juntas):
 
 ```bash
 echo 'KERNEL=="uinput", SUBSYSTEM=="misc", TAG+="uaccess", OPTIONS+="static_node=uinput"' | sudo tee /etc/udev/rules.d/60-uinput-usuario.rules
@@ -182,13 +188,15 @@ Depois de reiniciar, rode o comando de conferir de novo. Deve aparecer "Tudo cer
 
 1. Abra o **Chiaki** e conecte ao seu PlayStation. Deixe a janela dele **visível** na tela: não minimize e não cubra o meio dela com outra janela (o programa precisa "ver" o clarão).
 2. No jogo, vá até as **Planícies dos Trovões**.
-3. Abra o terminal (**Ctrl + Alt + T**), digite o comando abaixo e aperte Enter:
+3. Abra o terminal (**Ctrl + Alt + T**), cole o comando abaixo e aperte Enter.
+
+   👇 **Copie isto:**
 
    ```bash
    raios-ffx
    ```
 
-4. Pronto, ele está ligado. A cada raio, aparece uma linha nova no terminal:
+4. Pronto, ele está ligado. A cada raio, aparece uma linha nova no terminal. (A caixa abaixo é só um **exemplo** do que aparece: **não precisa copiar**.)
 
    ```
    Rodando! Pode andar pelas Planícies dos Trovões (de preferência em volta das crateras). Ctrl+C para parar.
@@ -233,7 +241,9 @@ Algumas dicas:
 
 ## 🔧 Dicas e ajustes
 
-**Modo teste.** Mostra o brilho da tela em tempo real **sem apertar nada**. Bom para conferir se o programa está "enxergando" o Chiaki:
+**Modo teste.** Mostra o brilho da tela em tempo real **sem apertar nada**. Bom para conferir se o programa está "enxergando" o Chiaki.
+
+👇 **Copie isto:**
 
 ```bash
 raios-ffx --teste
@@ -241,7 +251,9 @@ raios-ffx --teste
 
 Os números devem mudar quando você mexe a câmera no jogo. Para sair, **Ctrl + C**.
 
-**Atraso.** Se o personagem estiver levando raio porque apertou cedo demais (raro), dá para esperar alguns milésimos de segundo depois do clarão:
+**Atraso.** Se o personagem estiver levando raio porque apertou cedo demais (raro), dá para esperar alguns milésimos de segundo depois do clarão.
+
+👇 **Copie isto:**
 
 ```bash
 raios-ffx --atraso 50
@@ -259,7 +271,9 @@ raios-ffx --atraso 50
 ## 🩹 Problemas comuns
 
 **`raios-ffx: comando não encontrado`**
-A pasta `~/.local/bin` só entra no "caminho" do terminal depois que você sai da sua conta e entra de novo (ou reinicia o computador). Faça isso, ou, enquanto isso, rode o programa pelo caminho completo:
+A pasta `~/.local/bin` só entra no "caminho" do terminal depois que você sai da sua conta e entra de novo (ou reinicia o computador). Faça isso, ou, enquanto isso, rode o programa pelo caminho completo.
+
+👇 **Copie isto:**
 
 ```bash
 ~/.local/bin/raios-ffx

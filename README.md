@@ -103,6 +103,8 @@ Everything here is done in the **terminal**, the black (or dark) window where yo
 2. In the terminal, paste with **Ctrl + Shift + V** (note: in the terminal it's **with Shift**) or right-click → **Paste**.
 3. Press **Enter**.
 
+> 📋 **What to copy:** only the text inside the **grey boxes** that come right after **👇 Copy this**. Everything else on this page (headings, explanations, lists) is just for you to read: **don't paste it into the terminal**. The easiest way is the 📋 button in the box's right corner, which copies it exactly.
+
 **When the terminal asks for a password:**
 - Some commands start with `sudo`, which means "do this as administrator". They ask for **the same password you use to log in to your computer**.
 - **Nothing shows up on screen while you type the password**, not even dots or asterisks. That's normal and it's for your security. Type the password and press **Enter**.
@@ -117,7 +119,7 @@ You only do this **once**. There are 3 steps.
 
 Copy, paste into the terminal and press Enter. It will ask for your password (remember: it doesn't show while you type). If it asks `Do you want to continue? [Y/n]`, type **Y** and press Enter.
 
-**Linux Mint, Ubuntu, Pop!_OS, Debian and similar:**
+👇 **Copy this** (Linux Mint, Ubuntu, Pop!_OS, Debian and similar):
 
 ```bash
 sudo apt install python3-xlib wmctrl
@@ -126,13 +128,13 @@ sudo apt install python3-xlib wmctrl
 <details>
 <summary>Using Fedora or Arch? Click here</summary>
 
-Fedora:
+👇 **Copy this** (Fedora):
 
 ```bash
 sudo dnf install python3-xlib wmctrl
 ```
 
-Arch / Manjaro:
+👇 **Copy this** (Arch / Manjaro):
 
 ```bash
 sudo pacman -S python-xlib wmctrl
@@ -144,7 +146,7 @@ sudo pacman -S python-xlib wmctrl
 
 ### Step 2: download the program
 
-Copy and paste **the whole block** at once (it's 3 lines) and press Enter:
+👇 **Copy this**: the whole box, all 3 lines together (the 📋 button copies all 3). Paste it into the terminal and press Enter:
 
 ```bash
 mkdir -p ~/.local/bin
@@ -159,18 +161,22 @@ What each line does, so you know:
 
 ✅ **It worked if** you see a little download table ending in `100`.
 
-> **Rather skip the terminal for this step?** Click the green **Code → Download ZIP** button at the top of this page, extract it, and copy the `raios-ffx` file into the `.local/bin` folder inside your home folder (press **Ctrl + H** in your file manager to see folders that start with a dot). Then run only the third line above (`chmod +x ...`).
+> **Rather skip the terminal for this step?** Click the green **Code → Download ZIP** button at the top of this page, extract it, and copy the `raios-ffx` file into the `.local/bin` folder inside your home folder (press **Ctrl + H** in your file manager to see folders that start with a dot). Then paste only this line into the terminal: `chmod +x ~/.local/bin/raios-ffx`
 
 ### Step 3: check the virtual controller permission
 
-The program needs permission to create the invisible controller. Check it with:
+The program needs permission to create the invisible controller. Check it with the command below.
+
+👇 **Copy this:**
 
 ```bash
 test -w /dev/uinput && echo "All good" || echo "uinput needs to be allowed"
 ```
 
 - If it prints **"All good"**: you're done, skip to [How to use it](#-how-to-use-it). (If you have **Steam** installed, you almost always have this permission already.)
-- If it prints **"uinput needs to be allowed"**: copy and paste the block below, press Enter, type your password and then **restart your computer**:
+- If it prints **"uinput needs to be allowed"**: use the box below, press Enter, type your password and then **restart your computer**.
+
+👇 **Copy this** (only if it printed "uinput needs to be allowed"; the whole box, both lines together):
 
 ```bash
 echo 'KERNEL=="uinput", SUBSYSTEM=="misc", TAG+="uaccess", OPTIONS+="static_node=uinput"' | sudo tee /etc/udev/rules.d/60-uinput-usuario.rules
@@ -183,13 +189,15 @@ After restarting, run the check command again. It should print "All good".
 
 1. Open **Chiaki** and connect to your PlayStation. Keep its window **visible** on screen: don't minimize it and don't cover its center with another window (the program needs to "see" the flash).
 2. In the game, go to the **Thunder Plains**.
-3. Open the terminal (**Ctrl + Alt + T**), type the command below and press Enter:
+3. Open the terminal (**Ctrl + Alt + T**), paste the command below and press Enter.
+
+   👇 **Copy this:**
 
    ```bash
    raios-ffx
    ```
 
-4. That's it, it's on. Every time lightning strikes, a new line shows up in the terminal:
+4. That's it, it's on. Every time lightning strikes, a new line shows up in the terminal. (The box below is just an **example** of what shows up: **no need to copy it**.)
 
    ```
    Running! You can walk around the Thunder Plains (preferably around the craters). Ctrl+C to stop.
@@ -234,7 +242,9 @@ A few tips:
 
 ## 🔧 Tips and tweaks
 
-**Test mode.** Shows the screen brightness in real time **without pressing anything**. Handy to check that the program can "see" Chiaki:
+**Test mode.** Shows the screen brightness in real time **without pressing anything**. Handy to check that the program can "see" Chiaki.
+
+👇 **Copy this:**
 
 ```bash
 raios-ffx --test
@@ -242,7 +252,9 @@ raios-ffx --test
 
 The numbers should change when you move the camera in the game. To quit, press **Ctrl + C**.
 
-**Delay.** If your character gets hit because the press came too early (rare), you can wait a few milliseconds after the flash:
+**Delay.** If your character gets hit because the press came too early (rare), you can wait a few milliseconds after the flash.
+
+👇 **Copy this:**
 
 ```bash
 raios-ffx --delay 50
@@ -260,7 +272,9 @@ raios-ffx --delay 50
 ## 🩹 Troubleshooting
 
 **`raios-ffx: command not found`**
-The `~/.local/bin` folder only gets added to the terminal's "path" after you log out and back in (or restart your computer). Do that, or, in the meantime, run the program using its full path:
+The `~/.local/bin` folder only gets added to the terminal's "path" after you log out and back in (or restart your computer). Do that, or, in the meantime, run the program using its full path.
+
+👇 **Copy this:**
 
 ```bash
 ~/.local/bin/raios-ffx
