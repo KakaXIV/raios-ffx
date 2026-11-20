@@ -187,7 +187,9 @@ After restarting, run the check command again. It should print "All good".
 
 ## ▶️ How to use it
 
-1. Open **Chiaki** and connect to your PlayStation. Keep its window **visible** on screen: don't minimize it and don't cover its center with another window (the program needs to "see" the flash).
+**In short:** start the program in the terminal with `raios-ffx`, then press **F7** to turn it on. **F7** again turns it off.
+
+1. Open **Chiaki** and connect to your PlayStation. Don't minimize its window. Another window on top is fine: the program reads the picture straight from Chiaki's window.
 2. In the game, go to the **Thunder Plains**.
 3. Open the terminal (**Ctrl + Alt + T**), paste the command below and press Enter.
 
@@ -197,25 +199,40 @@ After restarting, run the check command again. It should print "All good".
    raios-ffx
    ```
 
-4. That's it, it's on. Every time lightning strikes, a new line shows up in the terminal. (The box below is just an **example** of what shows up: **no need to copy it**.)
+4. The program starts **turned off** and shows this (the box below is just an **example**: **no need to copy it**):
 
    ```
-   Running! You can walk around the Thunder Plains (preferably around the craters). Ctrl+C to stop.
-   ⚡ bolt 1  (brightness 60 -> 203)
-   ⚡ bolt 2  (brightness 59 -> 203)
+   Ready. Press F7 to turn ON and F7 again to turn OFF. Ctrl+C here closes the script.
+   OFF
    ```
 
    Leave this terminal window open (it can sit behind Chiaki) while you play.
 
-5. **You can walk around freely.** Your character jumps on their own when the lightning strikes, even while walking. You don't have to stand still. See [where it's best to be](#-where-to-stand-on-the-thunder-plains) below.
-6. For the **first few bolts**, watch the screen and make sure your character is **jumping to dodge**.
-7. Past **200**? Let another **10 to 15** strike, just to be safe. Then:
-   - go back to the terminal and press **Ctrl + C** to turn the program off;
+5. **Press F7** (the F7 key on the top row of your keyboard) to turn it **ON**. You don't need to click the terminal first: F7 works whatever window is in front, Chiaki included. The terminal shows `ON` and, every time lightning strikes, a new line:
+
+   ```
+   ON - you can walk around the Thunder Plains (preferably around the craters).
+   ⚡ bolt 1  (brightness 60 -> 203)
+   ⚡ bolt 2  (brightness 59 -> 203)
+   ```
+
+6. **You can walk around freely.** Your character jumps on their own when the lightning strikes, even while walking. You don't have to stand still. See [where it's best to be](#-where-to-stand-on-the-thunder-plains) below.
+7. For the **first few bolts**, watch the screen and make sure your character is **jumping to dodge**.
+8. Past **200**? Let another **10 to 15** strike, just to be safe. Then:
+   - press **F7** to turn it **OFF** (the terminal shows `OFF`);
    - head straight, without getting hit, to the **chest just outside Rin's Travel Agency** (in the middle of the Thunder Plains, between the northern and southern parts). The Venus Sigil is inside.
+9. To **close** the program for good, click the terminal and press **Ctrl + C**.
 
-> ⚠️ **Turn the program off (Ctrl + C in the terminal) before leaving the Thunder Plains.** Any flash on screen, such as the start of a battle, makes it press ✕.
+| Key | What it does |
+|---|---|
+| **F7** | Turns lightning detection on / off (works with Chiaki in front) |
+| **Ctrl + C** (in the terminal) | Closes the program for good |
 
-> ℹ️ **The number in the terminal is not the game's count.** It counts the flashes it has seen since it was started. If your character gets hit by lightning (during a battle, for example), the game resets its count, but the program keeps counting. If that happens, press **Ctrl + C** and start it again with `raios-ffx` to begin from zero.
+> ⚠️ **Turn it off with F7 before leaving the Thunder Plains.** While it's on, any flash on screen, such as the start of a battle, makes it press ✕.
+
+> ℹ️ **The number in the terminal is not the game's count.** It counts the flashes it has seen since it was started. If your character gets hit by lightning (during a battle, for example), the game resets its count, but the program keeps counting.
+
+> ⌨️ **F7 is reserved** while the program is open: other programs don't receive that key. If another program of yours also uses F7, don't keep both open at the same time.
 
 ## 🗺️ Where to stand on the Thunder Plains
 
@@ -242,7 +259,7 @@ A few tips:
 
 ## 🔧 Tips and tweaks
 
-**Test mode.** Shows the screen brightness in real time **without pressing anything**. Handy to check that the program can "see" Chiaki.
+**Test mode.** Shows the screen brightness in real time **without pressing anything** (it starts already on, no F7 needed). Handy to check that the program can "see" Chiaki.
 
 👇 **Copy this:**
 
@@ -260,12 +277,13 @@ The numbers should change when you move the camera in the game. To quit, press *
 raios-ffx --delay 50
 ```
 
-**Sensitivity.** At the top of the `raios-ffx` file there are two values you can change with any text editor:
+**Sensitivity.** At the top of the `raios-ffx` file there are three values you can change with any text editor:
 
 | Value | What it does | Default |
 |---|---|---|
 | `FLASH_JUMP` | How much the brightness must jump suddenly to count as lightning. Raise it if it presses with no lightning; lower it if it misses bolts. | `55` |
 | `COOLDOWN` | Seconds to wait before pressing again after a bolt | `1.2` |
+| `STAY_BRIGHT` | If the screen stays bright for longer than this (in seconds), the scene got brighter, it's not a bolt, so it doesn't count | `0.8` |
 
 **Connection.** The more stable the connection between your computer and the console, the better. A network cable on the console helps a lot.
 
@@ -281,10 +299,13 @@ The `~/.local/bin` folder only gets added to the terminal's "path" after you log
 ```
 
 **"Couldn't find the Chiaki window, waiting..."**
-The program looks for a window with "chiaki" in its title. Make sure Chiaki is open and not minimized. The `wmctrl -l` command lists the open windows: Chiaki's should be in it.
+The program looks for Chiaki's own window (by window type, not by title, so a browser tab with "Chiaki" in its name no longer confuses it). Make sure Chiaki is open and not minimized. The `wmctrl -lx` command lists the open windows: Chiaki's shows up as `chiaki.Chiaki`.
+
+**I pressed F7 and nothing happened**
+Check that the terminal shows `Ready. Press F7...`. If another program is already using F7, this one won't get the key: close the other one and start `raios-ffx` again. On some laptops the F keys only work while holding **Fn** (Fn + F7).
 
 **Lightning strikes, but nothing shows up in the terminal**
-Run `raios-ffx --test`. If the brightness is always `0`, your session is probably Wayland. Log out and, on the login screen, choose the "Xorg" or "X11" session.
+First check that it is `ON` (press F7). Then run `raios-ffx --test`. If the brightness is always `0`, your session is probably Wayland. Log out and, on the login screen, choose the "Xorg" or "X11" session.
 
 **"⚡ bolt" shows up, but the character doesn't jump**
 - Click once on the Chiaki window and make sure your controller works in it.

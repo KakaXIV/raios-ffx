@@ -11,17 +11,18 @@
 # Messages are shown in Portuguese if the system language is Portuguese,
 # and in English otherwise.
 #
-# Usage:  raios-ffx                 -> automatic mode (Ctrl+C to stop)
+# Usage:  raios-ffx                 -> F7 turns it on/off (Ctrl+C closes it)
 #         raios-ffx --test          -> only shows the screen brightness, presses nothing
 #         raios-ffx --delay 50      -> waits 50 ms after the flash before pressing
 #         (Portuguese aliases also work: --teste, --atraso)
 #
 # MIT License.
 import os, sys, time, struct, fcntl, subprocess
-from Xlib import display, X
+from Xlib import display, X, XK
 
 FLASH_JUMP = 55     # how much the brightness must jump suddenly to count as lightning
 COOLDOWN = 1.2      # seconds without pressing again after a bolt
+STAY_BRIGHT = 0.8   # bright for longer than this = the scene got brighter, not a flash
 BTN_CROSS = 0x122   # Cross button in the mapping Chiaki uses for this virtual controller
 
 # --- language -------------------------------------------------------------
@@ -37,8 +38,11 @@ PT = _system_language().startswith("pt")
 MSG = {
     "test_mode": ("Modo TESTE: só mostrando o brilho.",
                   "TEST mode: only showing the brightness."),
-    "running":   ("Rodando! Pode andar pelas Planícies dos Trovões (de preferência em volta das crateras). Ctrl+C para parar.",
-                  "Running! You can walk around the Thunder Plains (preferably around the craters). Ctrl+C to stop."),
+    "running":   ("Pronto. Aperte F7 para LIGAR e F7 de novo para DESLIGAR. Ctrl+C aqui fecha o script.\nDESLIGADO",
+                  "Ready. Press F7 to turn ON and F7 again to turn OFF. Ctrl+C here closes the script.\nOFF"),
+    "on":        ("LIGADO - pode andar pelas Planícies dos Trovões (de preferência em volta das crateras).",
+                  "ON - you can walk around the Thunder Plains (preferably around the craters)."),
+    "off":       ("DESLIGADO", "OFF"),
     "no_window": ("Não achei a janela do Chiaki, esperando...",
                   "Couldn't find the Chiaki window, waiting..."),
     "bolt":      ("⚡ raio {n}  (brilho {a} -> {b})",
@@ -64,13 +68,15 @@ _delay_ms = _option_value(("--delay", "--atraso"))
 DELAY = _delay_ms / 1000 if _delay_ms else 0.0
 
 # --- program --------------------------------------------------------------
-def chiaki_window():
-    out = subprocess.run(["wmctrl", "-lG"], capture_output=True, text=True).stdout
+def chiaki_window(d):
+    # match by window CLASS, not title: a browser tab titled "...Chiaki..." must not count
+    out = subprocess.run(["wmctrl", "-lx"], capture_output=True, text=True).stdout
     for line in out.splitlines():
-        p = line.split(None, 7)
-        if len(p) >= 8 and "chiaki" in p[7].lower():
-            x, y, w, h = map(int, p[2:6])
-            return x, y, w, h
+        p = line.split(None, 3)
+        if len(p) >= 3 and p[2].lower().startswith("chiaki."):
+            win = d.create_resource_object("window", int(p[0], 16))
+            g = win.get_geometry()
+            return win, g.width, g.height
     return None
 
 def ioc(d, t, nr, size):
@@ -103,10 +109,11 @@ def press(u, button):
     time.sleep(0.08)
     os.write(u, ev(1, button, 0) + ev(0, 0, 0))
 
-def brightness(root, x, y, w, h):
-    # takes the middle of the window (skips the borders and the title bar)
-    cx, cy, cw, ch = x + w // 8, y + h // 8, w * 3 // 4, h * 3 // 4
-    img = root.get_image(cx, cy, cw, ch, X.ZPixmap, 0xFFFFFFFF).data
+def brightness(win, w, h):
+    # reads the Chiaki window itself (works even if another window is on top)
+    # and takes the middle of it (skips the borders)
+    cx, cy, cw, ch = w // 8, h // 8, w * 3 // 4, h * 3 // 4
+    img = win.get_image(cx, cy, cw, ch, X.ZPixmap, 0xFFFFFFFF).data
     sample = img[1::4 * 37]           # green channel, 1 out of every 37 pixels
     return sum(sample) / max(1, len(sample))
 
@@ -116,19 +123,46 @@ def main():
     u = None if TEST else create_controller()
     if u:
         time.sleep(1.5)   # gives Chiaki time to notice the new controller
+    on = TEST   # in test mode it is always on; otherwise F7 toggles it
+    if not TEST:
+        f7 = d.keysym_to_keycode(XK.string_to_keysym("F7"))
+        # catch F7 even with NumLock/CapsLock on
+        for mod in (0, X.Mod2Mask, X.LockMask, X.Mod2Mask | X.LockMask):
+            root.grab_key(f7, mod, True, X.GrabModeAsync, X.GrabModeAsync)
+        d.flush()
     print(msg("test_mode") if TEST else msg("running"), flush=True)
     base = None; last = 0; bolts = 0; geo = None; geo_t = 0; t_log = time.time()
+    bright_since = None
     try:
         while True:
+            while not TEST and d.pending_events():
+                ev = d.next_event()
+                if ev.type == X.KeyPress and ev.detail == f7:
+                    on = not on; base = None; bright_since = None
+                    print(msg("on") if on else msg("off"), flush=True)
+            if not on:
+                time.sleep(0.05); continue
             now = time.time()
             if geo is None or now - geo_t > 3:
-                geo = chiaki_window(); geo_t = now
+                geo = chiaki_window(d); geo_t = now
                 if geo is None:
                     print(msg("no_window"), flush=True)
                     time.sleep(2); continue
-            b = brightness(root, *geo)
+            try:
+                b = brightness(*geo)
+            except Exception:
+                geo = None; time.sleep(0.5); continue   # window closed/resized: look again
             if base is None:
                 base = b
+            if b - base > FLASH_JUMP:
+                # a flash lasts a moment; if the screen stays bright, it's the scene, not lightning
+                if bright_since is None:
+                    bright_since = now
+                elif now - bright_since > STAY_BRIGHT:
+                    base = b; bright_since = None
+                    continue
+            else:
+                bright_since = None
             if b - base > FLASH_JUMP and now - last > COOLDOWN:
                 last = now; bolts += 1
                 if u:

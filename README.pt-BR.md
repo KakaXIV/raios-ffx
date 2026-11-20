@@ -186,7 +186,9 @@ Depois de reiniciar, rode o comando de conferir de novo. Deve aparecer "Tudo cer
 
 ## ▶️ Como usar
 
-1. Abra o **Chiaki** e conecte ao seu PlayStation. Deixe a janela dele **visível** na tela: não minimize e não cubra o meio dela com outra janela (o programa precisa "ver" o clarão).
+**Resumo:** abra o programa no terminal com `raios-ffx` e aperte **F7** para ligar. **F7** de novo desliga.
+
+1. Abra o **Chiaki** e conecte ao seu PlayStation. Não minimize a janela dele. Outra janela por cima não atrapalha: o programa lê a imagem direto da janela do Chiaki.
 2. No jogo, vá até as **Planícies dos Trovões**.
 3. Abra o terminal (**Ctrl + Alt + T**), cole o comando abaixo e aperte Enter.
 
@@ -196,25 +198,40 @@ Depois de reiniciar, rode o comando de conferir de novo. Deve aparecer "Tudo cer
    raios-ffx
    ```
 
-4. Pronto, ele está ligado. A cada raio, aparece uma linha nova no terminal. (A caixa abaixo é só um **exemplo** do que aparece: **não precisa copiar**.)
+4. O programa abre **desligado** e mostra isto (a caixa abaixo é só um **exemplo**: **não precisa copiar**):
 
    ```
-   Rodando! Pode andar pelas Planícies dos Trovões (de preferência em volta das crateras). Ctrl+C para parar.
-   ⚡ raio 1  (brilho 60 -> 203)
-   ⚡ raio 2  (brilho 59 -> 203)
+   Pronto. Aperte F7 para LIGAR e F7 de novo para DESLIGAR. Ctrl+C aqui fecha o script.
+   DESLIGADO
    ```
 
    Deixe essa janela do terminal aberta (pode ficar atrás do Chiaki) enquanto joga.
 
-5. **Você pode andar à vontade.** O personagem pula sozinho na hora do raio, mesmo andando. Não precisa ficar parado num lugar. Veja a seguir [onde é melhor ficar](#-onde-ficar-nas-planícies).
-6. Nos **primeiros raios**, olhe a tela e confira se o personagem está **pulando para desviar**.
-7. Passou de **200**? Deixe cair mais uns **10 a 15** por segurança. Depois:
-   - volte ao terminal e aperte **Ctrl + C** para desligar o programa;
+5. **Aperte F7** (a tecla F7, na fileira de cima do teclado) para **LIGAR**. Não precisa clicar no terminal antes: o F7 funciona com qualquer janela na frente, inclusive o Chiaki. O terminal mostra `LIGADO` e, a cada raio, uma linha nova:
+
+   ```
+   LIGADO - pode andar pelas Planícies dos Trovões (de preferência em volta das crateras).
+   ⚡ raio 1  (brilho 60 -> 203)
+   ⚡ raio 2  (brilho 59 -> 203)
+   ```
+
+6. **Você pode andar à vontade.** O personagem pula sozinho na hora do raio, mesmo andando. Não precisa ficar parado num lugar. Veja a seguir [onde é melhor ficar](#-onde-ficar-nas-planícies).
+7. Nos **primeiros raios**, olhe a tela e confira se o personagem está **pulando para desviar**.
+8. Passou de **200**? Deixe cair mais uns **10 a 15** por segurança. Depois:
+   - aperte **F7** para **DESLIGAR** (o terminal mostra `DESLIGADO`);
    - vá direto, sem levar raio, até o **baú do lado de fora da Agência de Viagem da Rin** (no meio das Planícies, entre a parte norte e a sul). A Venus Sigil está nele.
+9. Para **fechar** o programa de vez, clique no terminal e aperte **Ctrl + C**.
 
-> ⚠️ **Desligue o programa (Ctrl + C no terminal) antes de sair das Planícies.** Qualquer clarão na tela, como o começo de uma batalha, faz ele apertar X.
+| Tecla | O que faz |
+|---|---|
+| **F7** | Liga / desliga a detecção dos raios (funciona com o Chiaki na frente) |
+| **Ctrl + C** (no terminal) | Fecha o programa de vez |
 
-> ℹ️ **O número no terminal não é a contagem do jogo.** Ele conta os clarões que viu desde que foi ligado. Se o personagem levar um raio (por exemplo, numa batalha), o jogo zera a contagem dele, mas o programa continua contando. Nesse caso, aperte **Ctrl + C** e ligue de novo com `raios-ffx` para recomeçar do zero.
+> ⚠️ **Desligue com F7 antes de sair das Planícies.** Ligado, qualquer clarão na tela, como o começo de uma batalha, faz ele apertar X.
+
+> ℹ️ **O número no terminal não é a contagem do jogo.** Ele conta os clarões que viu desde que foi aberto. Se o personagem levar um raio (por exemplo, numa batalha), o jogo zera a contagem dele, mas o programa continua contando.
+
+> ⌨️ **O F7 fica reservado** enquanto o programa está aberto: outros programas não recebem essa tecla. Se outro programa seu também usa F7, não deixe os dois abertos ao mesmo tempo.
 
 ## 🗺️ Onde ficar nas Planícies
 
@@ -241,7 +258,7 @@ Algumas dicas:
 
 ## 🔧 Dicas e ajustes
 
-**Modo teste.** Mostra o brilho da tela em tempo real **sem apertar nada**. Bom para conferir se o programa está "enxergando" o Chiaki.
+**Modo teste.** Mostra o brilho da tela em tempo real **sem apertar nada** (já começa ligado, sem precisar do F7). Bom para conferir se o programa está "enxergando" o Chiaki.
 
 👇 **Copie isto:**
 
@@ -259,12 +276,13 @@ Os números devem mudar quando você mexe a câmera no jogo. Para sair, **Ctrl +
 raios-ffx --atraso 50
 ```
 
-**Sensibilidade.** No começo do arquivo `raios-ffx` há dois valores (os nomes estão em inglês, como o resto do código) que você pode mudar com qualquer editor de texto:
+**Sensibilidade.** No começo do arquivo `raios-ffx` há três valores (os nomes estão em inglês, como o resto do código) que você pode mudar com qualquer editor de texto:
 
 | Valor | O que faz | Padrão |
 |---|---|---|
 | `FLASH_JUMP` | Quanto o brilho precisa subir de repente para contar como raio. Aumente se ele estiver apertando sem raio; diminua se ele estiver perdendo raios. | `55` |
 | `COOLDOWN` | Segundos sem apertar de novo depois de um raio | `1.2` |
+| `STAY_BRIGHT` | Se a tela continuar clara por mais que isso (em segundos), é o cenário que clareou, não um raio, e ele não conta | `0.8` |
 
 **Conexão.** Quanto mais estável a conexão entre o computador e o console, melhor. Cabo de rede no console ajuda bastante.
 
@@ -280,10 +298,13 @@ A pasta `~/.local/bin` só entra no "caminho" do terminal depois que você sai d
 ```
 
 **"Não achei a janela do Chiaki, esperando..."**
-O programa procura uma janela com "chiaki" no título. Confira se o Chiaki está aberto e não minimizado. O comando `wmctrl -l` lista as janelas abertas: a do Chiaki deve aparecer nela.
+O programa procura a janela do próprio Chiaki (pelo tipo da janela, não pelo título, então uma aba do navegador com "Chiaki" no nome não confunde mais). Confira se o Chiaki está aberto e não minimizado. O comando `wmctrl -lx` lista as janelas abertas: a do Chiaki aparece com `chiaki.Chiaki`.
+
+**Apertei F7 e nada aconteceu**
+Confira se o terminal mostra `Pronto. Aperte F7...`. Se outro programa já estiver usando o F7, este não recebe a tecla: feche o outro e abra o `raios-ffx` de novo. Em alguns notebooks, as teclas F só funcionam segurando **Fn** (Fn + F7).
 
 **Os raios caem, mas nada aparece no terminal**
-Rode `raios-ffx --teste`. Se o brilho ficar sempre em `0`, sua sessão provavelmente é Wayland. Saia da conta e, na tela de login, escolha a sessão "Xorg" ou "X11".
+Primeiro confira se ele está `LIGADO` (aperte F7). Depois rode `raios-ffx --teste`. Se o brilho ficar sempre em `0`, sua sessão provavelmente é Wayland. Saia da conta e, na tela de login, escolha a sessão "Xorg" ou "X11".
 
 **Aparece "⚡ raio", mas o personagem não pula**
 - Clique uma vez na janela do Chiaki e confira se o seu controle está funcionando nela.
